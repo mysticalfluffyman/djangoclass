@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 # Create your models here.
 #Django-ORM (Object Relational Mapping)
 
@@ -26,3 +27,7 @@ class News(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     cover_image = models.ImageField(upload_to="news",null=True)
     slug = models.SlugField(max_length=255,null=True)
+
+    def get_absolute_url(self):
+        return reverse("single_news", kwargs={"pk": self.pk,"slug":self.slug})
+    
