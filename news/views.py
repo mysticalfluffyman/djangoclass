@@ -1,5 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.utils.text import slugify
 from django.views.generic import (
     TemplateView,
     DeleteView,
@@ -9,6 +12,7 @@ from django.views.generic import (
     CreateView,
 ) 
 from news.models import Category, News
+from news.forms import NewsCreateForm
 
 # Create your views here.
 class CategoryNewsView(View):
@@ -49,6 +53,45 @@ class NewsDetail(DetailView):
         context["popular_news"]= News.objects.order_by("-count")[:4] 
         print(context)
         return context
+
+
+class NewsCreateView(LoginRequiredMixin, CreateView):
+    model = News
+    template_name = "news/create.html"
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("home")
+    form_class = NewsCreateForm
+
+    def form_valid(self, form):
+        news = form.save(commit=False)
+        title = form.cleaned_data["title"]
+        slug = slugify(title)
+        news.slug = slug
+        news.author = self.request.user
+        news.save()
+
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
+
+class NewsUpdateView(LoginRequiredMixin, UpdateView):
+    model = News
+    template_name = "news/update.html"
+    fields = "title", "content", "cover_image", "category"
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("home")
+
+
+
+class NewsDeleteView(LoginRequiredMixin, DeleteView):
+    model = News
+    login_url = reverse_lazy("login")
+    success_url = reverse_lazy("home")
+
+    def get(self, request, *args, **kwargs):
+        return self.post(self, request, *args, **kwargs)
     
 
     
