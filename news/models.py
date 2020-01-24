@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.conf import settings
 # Create your models here.
 #Django-ORM (Object Relational Mapping)
 
@@ -22,7 +23,7 @@ class News(models.Model):
     content = models.TextField()
     count = models.IntegerField(default=0)
     category = models.ManyToManyField(Category,related_name="news_categories")
-    author = models.ForeignKey(User, on_delete=models.SET_NULL,null=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     cover_image = models.ImageField(upload_to="news",null=True)
