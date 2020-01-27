@@ -1,6 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,HttpResponse
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views.generic import (
@@ -11,7 +13,7 @@ from django.views.generic import (
     UpdateView,
     CreateView,
 ) 
-from news.models import Category, News
+from news.models import Category, News, Comment
 from news.forms import NewsCreateForm
 
 # Create your views here.
@@ -51,7 +53,7 @@ class NewsDetail(DetailView):
         self.object.count = self.object.count + 1
         self.object.save()
         context["popular_news"]= News.objects.order_by("-count")[:4] 
-        print(context)
+        context["comment_list"] = Comment.objects.filter(news=self.object)
         return context
 
 
@@ -94,4 +96,17 @@ class NewsDeleteView(LoginRequiredMixin, DeleteView):
         return self.post(self, request, *args, **kwargs)
     
 
-    
+
+@login_required(login_url="accounts/login")
+@require_http_methods(["POST"])
+def news_feedback(request, *args, **kwargs):
+    data = request.POST
+    print("HERE:",data)
+    news_id = kwargs.get("pk")
+    news = get_object_or_404(News, id=news_id)
+    # comment = Comment.objects.create(news=news, feedback=data["feedback"], commenter=request.user)
+    comment = Comment(news=news, feedback=data["feedback"], commenter=request.user)
+    comment.save()
+    print("BEFORE RESPONSE", comment)
+    template_name = "news/comments.html"
+    return render(request, template_name, {"comment": comment})
