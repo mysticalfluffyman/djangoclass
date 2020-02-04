@@ -1,4 +1,4 @@
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, DestroyAPIView
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from news.apis.serializers import CategoryListSerializer, NewsSerializer
 from django.utils.text import slugify
@@ -38,3 +38,10 @@ class NewsCreateAPIView(CreateAPIView):
         author = self.request.user
         serializer.save(author=author, slug=slug)
         return serializer
+
+class NewsDestroyAPIView(DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    serializer_class = NewsSerializer
+    model = serializer_class.Meta.model
+    queryset = model.objects.all()

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     #third party 
     'crispy_forms',
     'rest_framework',
+    'rest_framework_swagger',
     # Custom App
     'news.apps.NewsConfig',
     'accounts.apps.AccountsConfig'
@@ -153,7 +154,13 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework_simplejwt.authentication.JWTAuthentication",)
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.SessionAuthentication",
+    "rest_framework_simplejwt.authentication.JWTAuthentication"),
+
+    "DEFAULT_PERMISSION_CLASSES": [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -175,4 +182,14 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        },
+        "Bearer":{"type": "apiKey","name":"Authorization","in": "header"},
+
+    },
 }

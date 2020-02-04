@@ -23,6 +23,10 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from django.conf.urls import url
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='News API')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,6 +36,8 @@ urlpatterns = [
     #jwt
     path("apis/tokens/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("apis/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    #url swagger
+    path('swaggerdoc/', schema_view),
     #urls for api
     path("api-auth/", include("rest_framework.urls")),
     path("apis/accounts/", include("accounts.apis.api_urls")),
